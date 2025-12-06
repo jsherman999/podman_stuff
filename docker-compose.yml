@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  jump-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.rhel9-server
+    container_name: jump-server
+    hostname: jump-server
+    ports:
+      - "2222:22"
+    networks:
+      jumpnet:
+        ipv4_address: 172.25.0.10
+    privileged: true
+    restart: unless-stopped
+
+  target-server-1:
+    build:
+      context: .
+      dockerfile: Dockerfile.rhel9-server
+    container_name: target-server-1
+    hostname: target-server-1
+    ports:
+      - "2223:22"
+    networks:
+      jumpnet:
+        ipv4_address: 172.25.0.11
+    privileged: true
+    restart: unless-stopped
+
+  target-server-2:
+    build:
+      context: .
+      dockerfile: Dockerfile.rhel9-server
+    container_name: target-server-2
+    hostname: target-server-2
+    ports:
+      - "2224:22"
+    networks:
+      jumpnet:
+        ipv4_address: 172.25.0.12
+    privileged: true
+    restart: unless-stopped
+
+  target-server-3:
+    build:
+      context: .
+      dockerfile: Dockerfile.rhel9-server
+    container_name: target-server-3
+    hostname: target-server-3
+    ports:
+      - "2225:22"
+    networks:
+      jumpnet:
+        ipv4_address: 172.25.0.13
+    privileged: true
+    restart: unless-stopped
+
+  target-server-4:
+    build:
+      context: .
+      dockerfile: Dockerfile.rhel9-server
+    container_name: target-server-4
+    hostname: target-server-4
+    ports:
+      - "2226:22"
+    networks:
+      jumpnet:
+        ipv4_address: 172.25.0.14
+    privileged: true
+    restart: unless-stopped
+
+networks:
+  jumpnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16

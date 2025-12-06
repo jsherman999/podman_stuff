@@ -1,0 +1,27 @@
+FROM registry.access.redhat.com/ubi9/ubi-init
+
+# Install SSH and basic tools
+RUN dnf install -y \
+    openssh-server \
+    sudo \
+    vim \
+    net-tools \
+    iproute \
+    iputils \
+    procps-ng \
+    && dnf clean all
+
+# Generate SSH host keys
+RUN ssh-keygen -A
+
+# Create user 'jay' with sudo access
+RUN useradd -m -s /bin/bash jay && \
+    echo "jay:password" | chpasswd && \
+    echo "jay ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+# Enable SSH service
+RUN systemctl enable sshd
+
+EXPOSE 22
+
+CMD ["/sbin/init"]
