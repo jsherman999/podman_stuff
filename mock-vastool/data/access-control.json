@@ -1,0 +1,24 @@
+{
+  "server_access": {
+    "jump-server": {
+      "allowed_groups": ["unixadmins", "developers"],
+      "allowed_users": ["jsmith", "mjones", "bwilson"]
+    },
+    "target-server-1": {
+      "allowed_groups": ["unixadmins"],
+      "allowed_users": ["jsmith", "mjones"]
+    },
+    "target-server-2": {
+      "allowed_groups": ["unixadmins"],
+      "allowed_users": ["jsmith", "mjones"]
+    },
+    "target-server-3": {
+      "allowed_groups": ["unixadmins", "developers"],
+      "allowed_users": ["jsmith", "mjones", "bwilson"]
+    },
+    "target-server-4": {
+      "allowed_groups": ["unixadmins", "dbadmins"],
+      "allowed_users": ["jsmith", "mjones", "kadmin"]
+    }
+  }
+}

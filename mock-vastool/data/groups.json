@@ -1,0 +1,83 @@
+{
+  "groups": [
+    {
+      "sAMAccountName": "unixadmins",
+      "cn": "unixadmins",
+      "name": "unixadmins",
+      "distinguishedName": "CN=unixadmins,OU=Unix Groups,DC=example,DC=com",
+      "objectClass": ["top", "group"],
+      "objectCategory": "group",
+      "gidNumber": 10000,
+      "member": [
+        "CN=John Smith,OU=Users,DC=example,DC=com",
+        "CN=Mary Jones,OU=Users,DC=example,DC=com"
+      ],
+      "memberUsernames": ["jsmith", "mjones"],
+      "unixEnabled": true,
+      "groupType": -2147483646,
+      "primaryGroupToken": 10000
+    },
+    {
+      "sAMAccountName": "developers",
+      "cn": "developers",
+      "name": "developers",
+      "distinguishedName": "CN=developers,OU=Unix Groups,DC=example,DC=com",
+      "objectClass": ["top", "group"],
+      "objectCategory": "group",
+      "gidNumber": 10001,
+      "member": [
+        "CN=Bob Wilson,OU=Users,DC=example,DC=com",
+        "CN=John Smith,OU=Users,DC=example,DC=com"
+      ],
+      "memberUsernames": ["bwilson", "jsmith"],
+      "unixEnabled": true,
+      "groupType": -2147483646,
+      "primaryGroupToken": 10001
+    },
+    {
+      "sAMAccountName": "dbadmins",
+      "cn": "dbadmins",
+      "name": "dbadmins",
+      "distinguishedName": "CN=dbadmins,OU=Unix Groups,DC=example,DC=com",
+      "objectClass": ["top", "group"],
+      "objectCategory": "group",
+      "gidNumber": 10002,
+      "member": [
+        "CN=Mary Jones,OU=Users,DC=example,DC=com",
+        "CN=Kerberos Admin,OU=Users,DC=example,DC=com"
+      ],
+      "memberUsernames": ["mjones", "kadmin"],
+      "unixEnabled": true,
+      "groupType": -2147483646,
+      "primaryGroupToken": 10002
+    },
+    {
+      "sAMAccountName": "svcaccounts",
+      "cn": "svcaccounts",
+      "name": "svcaccounts",
+      "distinguishedName": "CN=svcaccounts,OU=Unix Groups,DC=example,DC=com",
+      "objectClass": ["top", "group"],
+      "objectCategory": "group",
+      "gidNumber": 10003,
+      "member": [
+        "CN=Application Service Account,OU=Service Accounts,DC=example,DC=com"
+      ],
+      "memberUsernames": ["svc_app"],
+      "unixEnabled": true,
+      "groupType": -2147483646,
+      "primaryGroupToken": 10003
+    },
+    {
+      "sAMAccountName": "Domain Users",
+      "cn": "Domain Users",
+      "name": "Domain Users",
+      "distinguishedName": "CN=Domain Users,CN=Users,DC=example,DC=com",
+      "objectClass": ["top", "group"],
+      "objectCategory": "group",
+      "member": [],
+      "memberUsernames": [],
+      "unixEnabled": false,
+      "groupType": -2147483646
+    }
+  ]
+}

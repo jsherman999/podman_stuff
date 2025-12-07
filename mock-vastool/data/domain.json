@@ -1,0 +1,19 @@
+{
+  "domain": "EXAMPLE.COM",
+  "domain_dn": "DC=example,DC=com",
+  "forest_root": "EXAMPLE.COM",
+  "forest_root_dn": "DC=example,DC=com",
+  "site": "Default-First-Site-Name",
+  "domain_controllers": [
+    {
+      "hostname": "dc01.example.com",
+      "ip": "172.25.0.100",
+      "site": "Default-First-Site-Name"
+    },
+    {
+      "hostname": "dc02.example.com",
+      "ip": "172.25.0.101",
+      "site": "Default-First-Site-Name"
+    }
+  ]
+}

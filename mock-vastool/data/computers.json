@@ -1,0 +1,64 @@
+{
+  "computers": [
+    {
+      "cn": "jump-server",
+      "name": "jump-server",
+      "sAMAccountName": "jump-server$",
+      "distinguishedName": "CN=jump-server,OU=Unix Servers,DC=example,DC=com",
+      "dNSHostName": "jump-server.example.com",
+      "objectClass": ["top", "computer"],
+      "objectCategory": "computer",
+      "operatingSystem": "Red Hat Enterprise Linux 9.3",
+      "operatingSystemVersion": "9.3",
+      "ipAddress": "172.25.0.10"
+    },
+    {
+      "cn": "target-server-1",
+      "name": "target-server-1",
+      "sAMAccountName": "target-server-1$",
+      "distinguishedName": "CN=target-server-1,OU=Unix Servers,DC=example,DC=com",
+      "dNSHostName": "target-server-1.example.com",
+      "objectClass": ["top", "computer"],
+      "objectCategory": "computer",
+      "operatingSystem": "Red Hat Enterprise Linux 9.3",
+      "operatingSystemVersion": "9.3",
+      "ipAddress": "172.25.0.11"
+    },
+    {
+      "cn": "target-server-2",
+      "name": "target-server-2",
+      "sAMAccountName": "target-server-2$",
+      "distinguishedName": "CN=target-server-2,OU=Unix Servers,DC=example,DC=com",
+      "dNSHostName": "target-server-2.example.com",
+      "objectClass": ["top", "computer"],
+      "objectCategory": "computer",
+      "operatingSystem": "Red Hat Enterprise Linux 9.3",
+      "operatingSystemVersion": "9.3",
+      "ipAddress": "172.25.0.12"
+    },
+    {
+      "cn": "target-server-3",
+      "name": "target-server-3",
+      "sAMAccountName": "target-server-3$",
+      "distinguishedName": "CN=target-server-3,OU=Unix Servers,DC=example,DC=com",
+      "dNSHostName": "target-server-3.example.com",
+      "objectClass": ["top", "computer"],
+      "objectCategory": "computer",
+      "operatingSystem": "Red Hat Enterprise Linux 9.3",
+      "operatingSystemVersion": "9.3",
+      "ipAddress": "172.25.0.13"
+    },
+    {
+      "cn": "target-server-4",
+      "name": "target-server-4",
+      "sAMAccountName": "target-server-4$",
+      "distinguishedName": "CN=target-server-4,OU=Unix Servers,DC=example,DC=com",
+      "dNSHostName": "target-server-4.example.com",
+      "objectClass": ["top", "computer"],
+      "objectCategory": "computer",
+      "operatingSystem": "Red Hat Enterprise Linux 9.3",
+      "operatingSystemVersion": "9.3",
+      "ipAddress": "172.25.0.14"
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "users": [
+    {
+      "sAMAccountName": "jsmith",
+      "cn": "John Smith",
+      "name": "jsmith",
+      "distinguishedName": "CN=John Smith,OU=Users,DC=example,DC=com",
+      "userPrincipalName": "jsmith@example.com",
+      "objectClass": ["top", "person", "organizationalPerson", "user"],
+      "objectCategory": "person",
+      "uidNumber": 10001,
+      "gidNumber": 10000,
+      "unixHomeDirectory": "/home/jsmith",
+      "loginShell": "/bin/bash",
+      "gecos": "John Smith",
+      "memberOf": [
+        "CN=unixadmins,OU=Unix Groups,DC=example,DC=com",
+        "CN=developers,OU=Unix Groups,DC=example,DC=com",
+        "CN=Domain Users,CN=Users,DC=example,DC=com"
+      ],
+      "unixEnabled": true,
+      "accountEnabled": true,
+      "userAccountControl": 512
+    },
+    {
+      "sAMAccountName": "mjones",
+      "cn": "Mary Jones",
+      "name": "mjones",
+      "distinguishedName": "CN=Mary Jones,OU=Users,DC=example,DC=com",
+      "userPrincipalName": "mjones@example.com",
+      "objectClass": ["top", "person", "organizationalPerson", "user"],
+      "objectCategory": "person",
+      "uidNumber": 10002,
+      "gidNumber": 10000,
+      "unixHomeDirectory": "/home/mjones",
+      "loginShell": "/bin/bash",
+      "gecos": "Mary Jones",
+      "memberOf": [
+        "CN=unixadmins,OU=Unix Groups,DC=example,DC=com",
+        "CN=dbadmins,OU=Unix Groups,DC=example,DC=com",
+        "CN=Domain Users,CN=Users,DC=example,DC=com"
+      ],
+      "unixEnabled": true,
+      "accountEnabled": true,
+      "userAccountControl": 512
+    },
+    {
+      "sAMAccountName": "bwilson",
+      "cn": "Bob Wilson",
+      "name": "bwilson",
+      "distinguishedName": "CN=Bob Wilson,OU=Users,DC=example,DC=com",
+      "userPrincipalName": "bwilson@example.com",
+      "objectClass": ["top", "person", "organizationalPerson", "user"],
+      "objectCategory": "person",
+      "uidNumber": 10003,
+      "gidNumber": 10001,
+      "unixHomeDirectory": "/home/bwilson",
+      "loginShell": "/bin/bash",
+      "gecos": "Bob Wilson",
+      "memberOf": [
+        "CN=developers,OU=Unix Groups,DC=example,DC=com",
+        "CN=Domain Users,CN=Users,DC=example,DC=com"
+      ],
+      "unixEnabled": true,
+      "accountEnabled": true,
+      "userAccountControl": 512
+    },
+    {
+      "sAMAccountName": "kadmin",
+      "cn": "Kerberos Admin",
+      "name": "kadmin",
+      "distinguishedName": "CN=Kerberos Admin,OU=Users,DC=example,DC=com",
+      "userPrincipalName": "kadmin@example.com",
+      "objectClass": ["top", "person", "organizationalPerson", "user"],
+      "objectCategory": "person",
+      "uidNumber": 10004,
+      "gidNumber": 10002,
+      "unixHomeDirectory": "/home/kadmin",
+      "loginShell": "/bin/bash",
+      "gecos": "Kerberos Admin",
+      "memberOf": [
+        "CN=dbadmins,OU=Unix Groups,DC=example,DC=com",
+        "CN=Domain Users,CN=Users,DC=example,DC=com"
+      ],
+      "unixEnabled": true,
+      "accountEnabled": true,
+      "userAccountControl": 512
+    },
+    {
+      "sAMAccountName": "svc_app",
+      "cn": "Application Service Account",
+      "name": "svc_app",
+      "distinguishedName": "CN=Application Service Account,OU=Service Accounts,DC=example,DC=com",
+      "userPrincipalName": "svc_app@example.com",
+      "objectClass": ["top", "person", "organizationalPerson", "user"],
+      "objectCategory": "person",
+      "uidNumber": 10005,
+      "gidNumber": 10003,
+      "unixHomeDirectory": "/home/svc_app",
+      "loginShell": "/bin/bash",
+      "gecos": "Application Service Account",
+      "memberOf": [
+        "CN=svcaccounts,OU=Unix Groups,DC=example,DC=com",
+        "CN=Domain Users,CN=Users,DC=example,DC=com"
+      ],
+      "unixEnabled": true,
+      "accountEnabled": true,
+      "userAccountControl": 512
+    },
+    {
+      "sAMAccountName": "aduser1",
+      "cn": "AD User One",
+      "name": "aduser1",
+      "distinguishedName": "CN=AD User One,OU=Users,DC=example,DC=com",
+      "userPrincipalName": "aduser1@example.com",
+      "objectClass": ["top", "person", "organizationalPerson", "user"],
+      "objectCategory": "person",
+      "memberOf": [
+        "CN=Domain Users,CN=Users,DC=example,DC=com"
+      ],
+      "unixEnabled": false,
+      "accountEnabled": true,
+      "userAccountControl": 512
+    }
+  ]
+}
