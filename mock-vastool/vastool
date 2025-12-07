@@ -7,7 +7,7 @@ set -euo pipefail
 
 # Paths
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DATA_DIR="${SCRIPT_DIR}/../etc"
+DATA_DIR="${SCRIPT_DIR}/data"
 
 # Data files
 DOMAIN_FILE="${DATA_DIR}/domain.json"
@@ -100,6 +100,79 @@ show_version() {
     echo "vastool 4.2.4.30023 (x86_64-redhat-linux) - MOCK VERSION"
 }
 
+# Command: info
+cmd_info() {
+    local subcommand="$1"
+    local domain_json
+    domain_json=$(load_json "$DOMAIN_FILE")
+
+    case "$subcommand" in
+        domain)
+            if [[ "$HAS_JQ" == "true" ]]; then
+                echo "$domain_json" | jq -r '.domain'
+            else
+                echo "EXAMPLE.COM"
+            fi
+            ;;
+        site)
+            if [[ "$HAS_JQ" == "true" ]]; then
+                echo "$domain_json" | jq -r '.site'
+            else
+                echo "Default-First-Site-Name"
+            fi
+            ;;
+        domain-dn)
+            if [[ "$HAS_JQ" == "true" ]]; then
+                echo "$domain_json" | jq -r '.domain_dn'
+            else
+                echo "DC=example,DC=com"
+            fi
+            ;;
+        forest-root)
+            if [[ "$HAS_JQ" == "true" ]]; then
+                echo "$domain_json" | jq -r '.forest_root'
+            else
+                echo "EXAMPLE.COM"
+            fi
+            ;;
+        forest-root-dn)
+            if [[ "$HAS_JQ" == "true" ]]; then
+                echo "$domain_json" | jq -r '.forest_root_dn'
+            else
+                echo "DC=example,DC=com"
+            fi
+            ;;
+        domains)
+            if [[ "$HAS_JQ" == "true" ]]; then
+                echo "$domain_json" | jq -r '.domain'
+            else
+                echo "EXAMPLE.COM"
+            fi
+            ;;
+        servers)
+            if [[ "$HAS_JQ" == "true" ]]; then
+                echo "$domain_json" | jq -r '.domain_controllers[].hostname'
+            else
+                echo "dc01.example.com"
+                echo "dc02.example.com"
+            fi
+            ;;
+        cldap)
+            local dc="${2:-dc01.example.com}"
+            cat <<EOF
+Forest:          example.com
+Domain:          example.com
+Domain Controller: $dc
+Site:            Default-First-Site-Name
+EOF
+            ;;
+        *)
+            echo "ERROR: Unknown info subcommand: $subcommand" >&2
+            exit 1
+            ;;
+    esac
+}
+
 # Parse global options
 AUTH_USER=""
 AUTH_PASS=""
@@ -146,3 +219,15 @@ done
 # Get command
 COMMAND="${1:-}"
 shift || true
+
+# Main command dispatcher
+case "$COMMAND" in
+    info)
+        cmd_info "$@"
+        ;;
+    *)
+        echo "ERROR: Unknown command: $COMMAND" >&2
+        echo "Run 'vastool --help' for usage information" >&2
+        exit 1
+        ;;
+esac
