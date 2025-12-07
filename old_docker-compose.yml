@@ -4,23 +4,11 @@ services:
   jump-server:
     build:
       context: .
-      dockerfile: Dockerfile.rhel9-jumpserver
+      dockerfile: Dockerfile.rhel9-server
     container_name: jump-server
     hostname: jump-server
     ports:
       - "2222:22"
-      - "8080:80"
-      - "8443:443"
-      - "3000:3000"
-      - "5001:5000"
-      - "8000:8000"
-    volumes:
-      - ./apps:/opt/apps
-      - ./data:/var/lib/data
-      - ./logs:/var/log/apps
-      - ./nginx:/etc/nginx/conf.d
-      - ./ssh-keys/root:/root/.ssh
-      - ./ssh-keys/jay:/home/jay/.ssh
     networks:
       jumpnet:
         ipv4_address: 172.25.0.10

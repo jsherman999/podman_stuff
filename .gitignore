@@ -1,0 +1,16 @@
+# SSH Private Keys - NEVER commit these
+id_rsa
+id_rsa.backup
+**/id_rsa
+**/id_rsa.backup
+
+# SSH known_hosts files
+**/known_hosts
+**/known_hosts.old
+
+# Backup files
+*.backup
+
+# Data directories
+/data/
+/logs/
