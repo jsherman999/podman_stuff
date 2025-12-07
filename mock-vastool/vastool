@@ -330,6 +330,196 @@ cmd_list() {
     esac
 }
 
+# Helper: Evaluate simple LDAP filter against JSON object
+# Returns 0 (true) if filter matches, 1 (false) if not
+eval_ldap_filter() {
+    local filter="$1"
+    local json_obj="$2"
+
+    # Remove outer parentheses
+    filter="${filter#(}"
+    filter="${filter%)}"
+
+    # Handle AND operator
+    if [[ "$filter" == "&"* ]]; then
+        # Extract sub-filters (simplified - doesn't handle nested AND/OR)
+        return 0  # For now, accept all AND filters
+    fi
+
+    # Handle OR operator
+    if [[ "$filter" == "|"* ]]; then
+        return 0  # For now, accept all OR filters
+    fi
+
+    # Handle NOT operator
+    if [[ "$filter" == "!"* ]]; then
+        return 0  # For now, accept all NOT filters
+    fi
+
+    # Handle simple attribute=value filter
+    if [[ "$filter" =~ ^([^=]+)=(.+)$ ]]; then
+        local attr="${BASH_REMATCH[1]}"
+        local value="${BASH_REMATCH[2]}"
+
+        # Wildcard - match all
+        if [[ "$value" == "*" ]]; then
+            return 0
+        fi
+
+        # Get attribute value from JSON
+        local obj_value
+        if [[ "$HAS_JQ" == "true" ]]; then
+            obj_value=$(echo "$json_obj" | jq -r ".${attr} // empty")
+        fi
+
+        # Simple equality check
+        if [[ "$obj_value" == "$value" ]]; then
+            return 0
+        fi
+
+        # Wildcard pattern matching
+        if [[ "$value" == *"*"* ]]; then
+            local pattern="${value//\*/.*}"
+            if [[ "$obj_value" =~ $pattern ]]; then
+                return 0
+            fi
+        fi
+    fi
+
+    # Default: match (for simplicity in mock)
+    return 0
+}
+
+# Command: search
+cmd_search() {
+    local filter="$1"
+    shift || true
+    local requested_attrs=("$@")
+
+    # Determine what to search based on filter
+    local search_users=false
+    local search_groups=false
+    local search_computers=false
+
+    # Simple heuristics based on filter content
+    if [[ "$filter" == *"person"* ]] || [[ "$filter" == *"user"* ]] || [[ "$filter" == *"sAMAccountName"* ]] || [[ "$filter" == *"uidNumber"* ]]; then
+        search_users=true
+    fi
+    if [[ "$filter" == *"group"* ]] || [[ "$filter" == *"gidNumber"* ]]; then
+        search_groups=true
+    fi
+    if [[ "$filter" == *"computer"* ]] || [[ "$filter" == *"operatingSystem"* ]]; then
+        search_computers=true
+    fi
+
+    # If no specific type detected, search all
+    if [[ "$search_users" == "false" ]] && [[ "$search_groups" == "false" ]] && [[ "$search_computers" == "false" ]]; then
+        search_users=true
+        search_groups=true
+        search_computers=true
+    fi
+
+    # Search users
+    if [[ "$search_users" == "true" ]]; then
+        if [[ "$HAS_JQ" == "true" ]]; then
+            local users_json
+            users_json=$(load_json "$USERS_FILE")
+
+            # If specific attributes requested
+            if [[ ${#requested_attrs[@]} -gt 0 ]]; then
+                local attr_filter=""
+                for attr in "${requested_attrs[@]}"; do
+                    attr_filter="$attr_filter, \"${attr}: \(.${attr})\""
+                done
+                attr_filter="${attr_filter#, }"  # Remove leading comma
+
+                echo "$users_json" | jq -r ".users[] |
+                    \"dn: \(.distinguishedName)\",
+                    $attr_filter,
+                    \"\""
+            else
+                # Show all attributes
+                echo "$users_json" | jq -r '.users[] |
+                    "dn: \(.distinguishedName)",
+                    "objectClass: \(.objectClass | join("\nobjectClass: "))",
+                    "cn: \(.cn)",
+                    "sAMAccountName: \(.sAMAccountName)",
+                    "userPrincipalName: \(.userPrincipalName)",
+                    (if .uidNumber then "uidNumber: \(.uidNumber)" else empty end),
+                    (if .gidNumber then "gidNumber: \(.gidNumber)" else empty end),
+                    ""'
+            fi
+        fi
+    fi
+
+    # Search groups
+    if [[ "$search_groups" == "true" ]]; then
+        if [[ "$HAS_JQ" == "true" ]]; then
+            local groups_json
+            groups_json=$(load_json "$GROUPS_FILE")
+
+            if [[ ${#requested_attrs[@]} -gt 0 ]]; then
+                # Check if member is requested (special handling needed)
+                local has_member=false
+                for attr in "${requested_attrs[@]}"; do
+                    if [[ "$attr" == "member" ]]; then
+                        has_member=true
+                        break
+                    fi
+                done
+
+                if [[ "$has_member" == "true" ]]; then
+                    # Special handling for member attribute
+                    echo "$groups_json" | jq -r '.groups[] |
+                        "dn: \(.distinguishedName)",
+                        (.member[]? | "member: \(.)"),
+                        ""'
+                else
+                    # Handle other attributes
+                    local attr_filter=""
+                    for attr in "${requested_attrs[@]}"; do
+                        attr_filter="$attr_filter, \"${attr}: \(.${attr})\""
+                    done
+                    attr_filter="${attr_filter#, }"  # Remove leading comma
+
+                    echo "$groups_json" | jq -r ".groups[] |
+                        \"dn: \(.distinguishedName)\",
+                        $attr_filter,
+                        \"\""
+                fi
+            fi
+        fi
+    fi
+
+    # Search computers
+    if [[ "$search_computers" == "true" ]]; then
+        if [[ "$HAS_JQ" == "true" ]]; then
+            local computers_json
+            computers_json=$(load_json "$COMPUTERS_FILE")
+
+            if [[ ${#requested_attrs[@]} -gt 0 ]]; then
+                local attr_filter=""
+                for attr in "${requested_attrs[@]}"; do
+                    attr_filter="$attr_filter, \"${attr}: \(.${attr})\""
+                done
+                attr_filter="${attr_filter#, }"  # Remove leading comma
+
+                echo "$computers_json" | jq -r ".computers[] |
+                    \"dn: \(.distinguishedName)\",
+                    $attr_filter,
+                    \"\""
+            else
+                echo "$computers_json" | jq -r '.computers[] |
+                    "dn: \(.distinguishedName)",
+                    "cn: \(.cn)",
+                    "dNSHostName: \(.dNSHostName)",
+                    "operatingSystem: \(.operatingSystem)",
+                    ""'
+            fi
+        fi
+    fi
+}
+
 # Parse global options
 AUTH_USER=""
 AUTH_PASS=""
@@ -387,6 +577,9 @@ case "$COMMAND" in
         ;;
     list)
         cmd_list "$@"
+        ;;
+    search)
+        cmd_search "$@"
         ;;
     *)
         echo "ERROR: Unknown command: $COMMAND" >&2
