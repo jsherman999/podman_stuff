@@ -189,6 +189,147 @@ SUCCESS: System is in a site
 EOF
 }
 
+# Command: list users
+cmd_list_users() {
+    local show_all=false
+    local users_json
+    users_json=$(load_json "$USERS_FILE")
+
+    # Check for -a flag in remaining args
+    for arg in "$@"; do
+        if [[ "$arg" == "-a" ]] || [[ "$arg" == "-la" ]]; then
+            show_all=true
+        fi
+    done
+
+    if [[ "$HAS_JQ" == "true" ]]; then
+        if [[ "$show_all" == "true" ]]; then
+            # Show all users including non-unix-enabled (with empty fields)
+            echo "$users_json" | jq -r '.users[] |
+                if .unixEnabled then
+                    "\(.sAMAccountName):*:\(.uidNumber):\(.gidNumber):\(.gecos):\(.unixHomeDirectory):\(.loginShell)"
+                else
+                    "\(.sAMAccountName)::::\(.cn)::"
+                end'
+        else
+            # Show only unix-enabled users
+            echo "$users_json" | jq -r '.users[] | select(.unixEnabled == true) |
+                "\(.sAMAccountName):*:\(.uidNumber):\(.gidNumber):\(.gecos):\(.unixHomeDirectory):\(.loginShell)"'
+        fi
+    else
+        # Fallback: hardcoded users
+        cat <<EOF
+jsmith:*:10001:10000:John Smith:/home/jsmith:/bin/bash
+mjones:*:10002:10000:Mary Jones:/home/mjones:/bin/bash
+bwilson:*:10003:10001:Bob Wilson:/home/bwilson:/bin/bash
+kadmin:*:10004:10002:Kerberos Admin:/home/kadmin:/bin/bash
+svc_app:*:10005:10003:Application Service Account:/home/svc_app:/bin/bash
+EOF
+    fi
+}
+
+# Command: list groups
+cmd_list_groups() {
+    local show_all=false
+    local groups_json
+    groups_json=$(load_json "$GROUPS_FILE")
+
+    # Check for -a flag
+    for arg in "$@"; do
+        if [[ "$arg" == "-a" ]] || [[ "$arg" == "-la" ]]; then
+            show_all=true
+        fi
+    done
+
+    if [[ "$HAS_JQ" == "true" ]]; then
+        if [[ "$show_all" == "true" ]]; then
+            # Show all groups
+            echo "$groups_json" | jq -r '.groups[] |
+                if .unixEnabled then
+                    "\(.sAMAccountName):*:\(.gidNumber):\(.memberUsernames | join(","))"
+                else
+                    "\(.sAMAccountName):::"
+                end'
+        else
+            # Show only unix-enabled groups
+            echo "$groups_json" | jq -r '.groups[] | select(.unixEnabled == true) |
+                "\(.sAMAccountName):*:\(.gidNumber):\(.memberUsernames | join(","))"'
+        fi
+    else
+        # Fallback
+        cat <<EOF
+unixadmins:*:10000:jsmith,mjones
+developers:*:10001:bwilson,jsmith
+dbadmins:*:10002:mjones,kadmin
+svcaccounts:*:10003:svc_app
+EOF
+    fi
+}
+
+# Command: list users-allowed
+cmd_list_users_allowed() {
+    local access_json
+    access_json=$(load_json "$ACCESS_FILE")
+
+    if [[ "$HAS_JQ" == "true" ]]; then
+        echo "$access_json" | jq -r ".server_access.\"${HOSTNAME}\".allowed_users[]? // empty"
+    else
+        # Fallback based on hostname
+        case "$HOSTNAME" in
+            jump-server)
+                echo "jsmith"
+                echo "mjones"
+                echo "bwilson"
+                ;;
+            target-server-1|target-server-2)
+                echo "jsmith"
+                echo "mjones"
+                ;;
+            target-server-3)
+                echo "jsmith"
+                echo "mjones"
+                echo "bwilson"
+                ;;
+            target-server-4)
+                echo "jsmith"
+                echo "mjones"
+                echo "kadmin"
+                ;;
+        esac
+    fi
+}
+
+# Command: list
+cmd_list() {
+    local list_type="$1"
+    shift || true
+
+    case "$list_type" in
+        users)
+            cmd_list_users "$@"
+            ;;
+        groups)
+            cmd_list_groups "$@"
+            ;;
+        users-allowed)
+            cmd_list_users_allowed "$@"
+            ;;
+        user|group)
+            # Single user/group - extract from list
+            local name="$1"
+            if [[ "$list_type" == "user" ]]; then
+                cmd_list_users | grep "^${name}:"
+            else
+                cmd_list_groups | grep "^${name}:"
+            fi
+            ;;
+        *)
+            echo "ERROR: Unknown list type: $list_type" >&2
+            exit 1
+            ;;
+    esac
+}
+
 # Parse global options
 AUTH_USER=""
 AUTH_PASS=""
@@ -243,6 +384,9 @@ case "$COMMAND" in
         ;;
     status)
         cmd_status
+        ;;
+    list)
+        cmd_list "$@"
         ;;
     *)
         echo "ERROR: Unknown command: $COMMAND" >&2
