@@ -173,6 +173,22 @@ EOF
     esac
 }
 
+# Command: status
+cmd_status() {
+    local domain
+    local site
+
+    domain=$(get_domain_info "domain")
+    site=$(get_domain_info "site")
+
+    cat <<EOF
+DOMAIN: ${domain}
+SITE: ${site}
+SUCCESS: System is in the domain
+SUCCESS: System is in a site
+EOF
+}
+
 # Parse global options
 AUTH_USER=""
 AUTH_PASS=""
@@ -224,6 +240,9 @@ shift || true
 case "$COMMAND" in
     info)
         cmd_info "$@"
+        ;;
+    status)
+        cmd_status
         ;;
     *)
         echo "ERROR: Unknown command: $COMMAND" >&2
