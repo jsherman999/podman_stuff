@@ -6,8 +6,15 @@
 set -euo pipefail
 
 # Paths
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DATA_DIR="${SCRIPT_DIR}/data"
+# Resolve symlinks to get the actual script location
+SCRIPT_PATH="${BASH_SOURCE[0]}"
+while [ -L "$SCRIPT_PATH" ]; do
+    SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)"
+    SCRIPT_PATH="$(readlink "$SCRIPT_PATH")"
+    [[ $SCRIPT_PATH != /* ]] && SCRIPT_PATH="$SCRIPT_DIR/$SCRIPT_PATH"
+done
+SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)"
+DATA_DIR="${SCRIPT_DIR}/../etc"
 
 # Data files
 DOMAIN_FILE="${DATA_DIR}/domain.json"
@@ -16,8 +23,12 @@ GROUPS_FILE="${DATA_DIR}/groups.json"
 COMPUTERS_FILE="${DATA_DIR}/computers.json"
 ACCESS_FILE="${DATA_DIR}/access-control.json"
 
-# Get hostname
-HOSTNAME="$(hostname -s)"
+# Get hostname (fallback to /etc/hostname if hostname command not available)
+if command -v hostname &> /dev/null; then
+    HOSTNAME="$(hostname -s)"
+else
+    HOSTNAME="$(cat /etc/hostname 2>/dev/null || echo 'unknown')"
+fi
 
 # Check if jq is available
 if command -v jq &> /dev/null; then
