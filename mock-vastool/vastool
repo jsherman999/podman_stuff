@@ -1,0 +1,148 @@
+#!/bin/bash
+
+# Mock vastool - Simulates Quest/One Identity Authentication Services vastool command
+# Version: 4.2.4.30023 (matching real vastool)
+
+set -euo pipefail
+
+# Paths
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DATA_DIR="${SCRIPT_DIR}/../etc"
+
+# Data files
+DOMAIN_FILE="${DATA_DIR}/domain.json"
+USERS_FILE="${DATA_DIR}/users.json"
+GROUPS_FILE="${DATA_DIR}/groups.json"
+COMPUTERS_FILE="${DATA_DIR}/computers.json"
+ACCESS_FILE="${DATA_DIR}/access-control.json"
+
+# Get hostname
+HOSTNAME="$(hostname -s)"
+
+# Check if jq is available
+if command -v jq &> /dev/null; then
+    HAS_JQ=true
+else
+    HAS_JQ=false
+fi
+
+# Helper: Load JSON file (with jq or fallback to grep/sed)
+load_json() {
+    local file="$1"
+    if [[ ! -f "$file" ]]; then
+        echo "ERROR: Data file not found: $file" >&2
+        exit 1
+    fi
+    cat "$file"
+}
+
+# Helper: Query JSON with jq
+query_json() {
+    local json="$1"
+    local query="$2"
+
+    if [[ "$HAS_JQ" == "true" ]]; then
+        echo "$json" | jq -r "$query"
+    else
+        # Fallback: basic grep/sed parsing for simple queries
+        echo "$json" | grep -o "\"${query}\"[[:space:]]*:[[:space:]]*\"[^\"]*\"" | cut -d'"' -f4
+    fi
+}
+
+# Helper: Get domain info
+get_domain_info() {
+    local key="$1"
+    local domain_json
+    domain_json=$(load_json "$DOMAIN_FILE")
+    query_json "$domain_json" ".$key"
+}
+
+# Show usage
+show_usage() {
+    cat <<EOF
+vastool - Quest Authentication Services command-line utility (MOCK VERSION)
+
+Usage: vastool [options] <command> [arguments...]
+
+Common commands:
+  info <subcommand>           Get information (domain, site, servers, etc.)
+  status                      Check system status
+  list <type>                 List users or groups
+  search <filter> [attrs...]  Search AD objects with LDAP filter
+  attrs [-g|-h] <obj> [attrs] Get object attributes
+  user checkaccess <username> Check user access to this server
+  flush                       Flush cache
+  kinit [username]            Get Kerberos ticket
+  klist                       List Kerberos tickets
+  kdestroy                    Destroy Kerberos tickets
+
+Options:
+  -u <user>       Authenticate as user (e.g., -u host/)
+  -w <password>   Password for authentication
+  -s <scope>      Search scope (base, one, sub)
+  -b <basedn>     Base DN for search
+  -v, --version   Show version
+  --help          Show this help
+
+Examples:
+  vastool info domain
+  vastool status
+  vastool list users
+  vastool search "(sAMAccountName=jsmith)"
+  vastool user checkaccess jsmith
+
+Note: This is a MOCK implementation for testing purposes.
+EOF
+}
+
+# Show version
+show_version() {
+    echo "vastool 4.2.4.30023 (x86_64-redhat-linux) - MOCK VERSION"
+}
+
+# Parse global options
+AUTH_USER=""
+AUTH_PASS=""
+SEARCH_SCOPE="sub"
+SEARCH_BASE=""
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -v|--version)
+            show_version
+            exit 0
+            ;;
+        --help)
+            show_usage
+            exit 0
+            ;;
+        -u)
+            AUTH_USER="$2"
+            shift 2
+            ;;
+        -w)
+            AUTH_PASS="$2"
+            shift 2
+            ;;
+        -s)
+            SEARCH_SCOPE="$2"
+            shift 2
+            ;;
+        -b)
+            SEARCH_BASE="$2"
+            shift 2
+            ;;
+        -*)
+            # Ignore other options for now (like -d5, -q, etc.)
+            shift
+            ;;
+        *)
+            # First non-option argument is the command
+            break
+            ;;
+    esac
+done
+
+# Get command
+COMMAND="${1:-}"
+shift || true
