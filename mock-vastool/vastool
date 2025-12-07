@@ -684,6 +684,71 @@ cmd_user() {
     esac
 }
 
+# Command: flush
+cmd_flush() {
+    echo "Cache flushed"
+}
+
+# Command: kinit
+cmd_kinit() {
+    local username="${1:-}"
+    local ticket_dir="/tmp/krb5cc_$(id -u)"
+
+    if [[ -z "$username" ]]; then
+        username="$(whoami)"
+    fi
+
+    # Create mock ticket cache
+    mkdir -p "$(dirname "$ticket_dir")"
+    cat > "$ticket_dir" <<EOF
+Mock Kerberos ticket for ${username}@EXAMPLE.COM
+Generated: $(date)
+EOF
+
+    echo "Kerberos ticket obtained for ${username}@EXAMPLE.COM"
+}
+
+# Command: klist
+cmd_klist() {
+    local ticket_dir="/tmp/krb5cc_$(id -u)"
+
+    if [[ ! -f "$ticket_dir" ]]; then
+        echo "klist: No credentials cache found" >&2
+        exit 1
+    fi
+
+    # Calculate expiry time (10 hours from now) - macOS compatible
+    local start_time expires_time
+    start_time=$(date '+%m/%d/%y %H:%M:%S')
+    if date -v+10H > /dev/null 2>&1; then
+        # macOS date command
+        expires_time=$(date -v+10H '+%m/%d/%y %H:%M:%S')
+    else
+        # GNU date command
+        expires_time=$(date -d '+10 hours' '+%m/%d/%y %H:%M:%S')
+    fi
+
+    cat <<EOF
+Ticket cache: FILE:${ticket_dir}
+Default principal: $(whoami)@EXAMPLE.COM
+
+Valid starting     Expires            Service principal
+${start_time}  ${expires_time}  krbtgt/EXAMPLE.COM@EXAMPLE.COM
+EOF
+}
+
+# Command: kdestroy
+cmd_kdestroy() {
+    local ticket_dir="/tmp/krb5cc_$(id -u)"
+
+    if [[ -f "$ticket_dir" ]]; then
+        rm -f "$ticket_dir"
+        echo "Kerberos tickets destroyed"
+    else
+        echo "No tickets to destroy"
+    fi
+}
+
 # Parse global options
 AUTH_USER=""
 AUTH_PASS=""
@@ -750,6 +815,18 @@ case "$COMMAND" in
         ;;
     user)
         cmd_user "$@"
+        ;;
+    flush)
+        cmd_flush
+        ;;
+    kinit)
+        cmd_kinit "$@"
+        ;;
+    klist)
+        cmd_klist
+        ;;
+    kdestroy)
+        cmd_kdestroy
         ;;
     *)
         echo "ERROR: Unknown command: $COMMAND" >&2
