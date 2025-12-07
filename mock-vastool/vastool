@@ -177,6 +177,85 @@ Domain Controller: $dc
 Site:            Default-First-Site-Name
 EOF
             ;;
+        acl)
+            # Display Access Control List (users.allow equivalent)
+            local access_json
+            access_json=$(load_json "$ACCESS_FILE")
+
+            if [[ "$HAS_JQ" == "true" ]]; then
+                # Get allowed groups for this hostname
+                local groups
+                groups=$(echo "$access_json" | jq -r ".server_access.\"${HOSTNAME}\".allowed_groups[]?" 2>/dev/null || true)
+
+                # Get allowed users for this hostname
+                local users
+                users=$(echo "$access_json" | jq -r ".server_access.\"${HOSTNAME}\".allowed_users[]?" 2>/dev/null || true)
+
+                echo "Access Control List for ${HOSTNAME}:"
+                echo ""
+                if [[ -n "$groups" ]]; then
+                    echo "Allowed Groups:"
+                    echo "$groups" | while read -r group; do
+                        [[ -n "$group" ]] && echo "  $group"
+                    done
+                    echo ""
+                fi
+
+                if [[ -n "$users" ]]; then
+                    echo "Allowed Users:"
+                    echo "$users" | while read -r user; do
+                        [[ -n "$user" ]] && echo "  $user"
+                    done
+                fi
+            else
+                # Fallback based on hostname
+                echo "Access Control List for ${HOSTNAME}:"
+                echo ""
+                case "$HOSTNAME" in
+                    jump-server)
+                        echo "Allowed Groups:"
+                        echo "  unixadmins"
+                        echo "  developers"
+                        echo ""
+                        echo "Allowed Users:"
+                        echo "  jsmith"
+                        echo "  mjones"
+                        echo "  bwilson"
+                        ;;
+                    target-server-1|target-server-2)
+                        echo "Allowed Groups:"
+                        echo "  unixadmins"
+                        echo ""
+                        echo "Allowed Users:"
+                        echo "  jsmith"
+                        echo "  mjones"
+                        ;;
+                    target-server-3)
+                        echo "Allowed Groups:"
+                        echo "  unixadmins"
+                        echo "  developers"
+                        echo ""
+                        echo "Allowed Users:"
+                        echo "  jsmith"
+                        echo "  mjones"
+                        echo "  bwilson"
+                        ;;
+                    target-server-4)
+                        echo "Allowed Groups:"
+                        echo "  unixadmins"
+                        echo "  dbadmins"
+                        echo ""
+                        echo "Allowed Users:"
+                        echo "  jsmith"
+                        echo "  mjones"
+                        echo "  kadmin"
+                        ;;
+                    *)
+                        echo "No access control configured for this server"
+                        ;;
+                esac
+            fi
+            ;;
         *)
             echo "ERROR: Unknown info subcommand: $subcommand" >&2
             exit 1
