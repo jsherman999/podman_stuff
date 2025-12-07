@@ -617,6 +617,73 @@ cmd_attrs() {
     fi
 }
 
+# Command: user
+cmd_user() {
+    local subcommand="$1"
+    shift || true
+
+    case "$subcommand" in
+        checkaccess)
+            local username="${1:-}"
+            if [[ -z "$username" ]]; then
+                echo "ERROR: Username required" >&2
+                exit 1
+            fi
+
+            local access_json
+            access_json=$(load_json "$ACCESS_FILE")
+
+            local has_access=false
+
+            if [[ "$HAS_JQ" == "true" ]]; then
+                # Check if user is in allowed list
+                local allowed_users
+                allowed_users=$(echo "$access_json" | jq -r ".server_access.\"${HOSTNAME}\".allowed_users[]" 2>/dev/null || true)
+
+                if echo "$allowed_users" | grep -q "^${username}$"; then
+                    has_access=true
+                fi
+            else
+                # Fallback check
+                case "$HOSTNAME" in
+                    jump-server)
+                        if [[ "$username" == "jsmith" ]] || [[ "$username" == "mjones" ]] || [[ "$username" == "bwilson" ]]; then
+                            has_access=true
+                        fi
+                        ;;
+                    target-server-1|target-server-2)
+                        if [[ "$username" == "jsmith" ]] || [[ "$username" == "mjones" ]]; then
+                            has_access=true
+                        fi
+                        ;;
+                    target-server-3)
+                        if [[ "$username" == "jsmith" ]] || [[ "$username" == "mjones" ]] || [[ "$username" == "bwilson" ]]; then
+                            has_access=true
+                        fi
+                        ;;
+                    target-server-4)
+                        if [[ "$username" == "jsmith" ]] || [[ "$username" == "mjones" ]] || [[ "$username" == "kadmin" ]]; then
+                            has_access=true
+                        fi
+                        ;;
+                esac
+            fi
+
+            if [[ "$has_access" == "true" ]]; then
+                echo "$username has access to this computer"
+                exit 0
+            else
+                echo "$username does not have access to this computer"
+                exit 1
+            fi
+            ;;
+        *)
+            echo "ERROR: Unknown user subcommand: $subcommand" >&2
+            exit 1
+            ;;
+    esac
+}
+
 # Parse global options
 AUTH_USER=""
 AUTH_PASS=""
@@ -680,6 +747,9 @@ case "$COMMAND" in
         ;;
     attrs)
         cmd_attrs "$@"
+        ;;
+    user)
+        cmd_user "$@"
         ;;
     *)
         echo "ERROR: Unknown command: $COMMAND" >&2
