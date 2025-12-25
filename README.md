@@ -2,6 +2,14 @@
 
 A Podman-based RHEL 9 server farm environment for infrastructure testing, patch management validation, entitlement review, vulnerability scanning, and other enterprise Linux testing workflows.
 
+## Platform Support
+
+- **macOS**: Uses Podman Machine (VM-based) - see instructions below
+- **Windows WSL2/Ubuntu**: Native Podman support - see [README-WSL2.md](README-WSL2.md) and [QUICKSTART-WSL2.md](QUICKSTART-WSL2.md)
+- **Linux**: Native Podman support (same instructions as WSL2)
+
+> **Running on Windows WSL2?** Check out the [WSL2 Quick Start Guide](QUICKSTART-WSL2.md) for automated setup!
+
 ## Overview
 
 Podmania creates a lightweight, reproducible RHEL 9 server farm using Podman containers orchestrated by `podman-compose`. It provides a jump server architecture with multiple target servers, all running in an isolated network environment - perfect for testing automation scripts, deployment procedures, security scans, and infrastructure changes before production deployment.
@@ -14,7 +22,7 @@ Podmania creates a lightweight, reproducible RHEL 9 server farm using Podman con
 - **Full Package Management**: Real RHEL 9 userspace with DNF, systemd, and access to UBI repositories
 - **Python-Ready**: Supports venv environments and pip package installation
 - **Persistent or Ephemeral**: Optionally mount volumes for persistent storage across container lifecycles
-- **Mac-as-Jump-Server**: Push your Mac's SSH keys to all containers for direct control from your workstation
+- **Multi-Platform**: Works on macOS, Windows WSL2, and Linux
 
 ## Architecture
 
@@ -53,11 +61,19 @@ Podmania creates a lightweight, reproducible RHEL 9 server farm using Podman con
 
 ## Prerequisites
 
+> **Note**: These instructions are for **macOS**. If you're on **Windows WSL2/Ubuntu** or **Linux**, see [README-WSL2.md](README-WSL2.md) for platform-specific instructions and automated setup.
+
 ### Install Podman
 
 **macOS (using Homebrew):**
 ```bash
 brew install podman
+```
+
+**Windows WSL2/Ubuntu/Linux:**
+See [README-WSL2.md](README-WSL2.md) or run the automated setup:
+```bash
+./setup-wsl2.sh
 ```
 
 ### Install podman-compose
