@@ -1,0 +1,20 @@
+Host target-server-* ts1 ts2 ts3 ts4
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+    ForwardAgent yes
+
+Host ts1
+    HostName target-server-1
+    User jay
+
+Host ts2
+    HostName target-server-2
+    User jay
+
+Host ts3
+    HostName target-server-3
+    User jay
+
+Host ts4
+    HostName target-server-4
+    User jay

@@ -1,16 +1,12 @@
-# SSH Private Keys - NEVER commit these
-id_rsa
-id_rsa.backup
-**/id_rsa
-**/id_rsa.backup
+# Log files
+*.log
+launchd-*.log
+podmania-startup.log
 
-# SSH known_hosts files
-**/known_hosts
-**/known_hosts.old
+# Private keys (only public keys should be committed)
+ssh-keys/*/id_ed25519
+ssh-keys/*/id_rsa
 
-# Backup files
-*.backup
-
-# Data directories
-/data/
-/logs/
+# Temporary files
+*.tmp
+.DS_Store

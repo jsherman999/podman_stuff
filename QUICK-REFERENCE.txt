@@ -1,0 +1,33 @@
+╔═══════════════════════════════════════════════════════════════╗
+║                  PODMANIA QUICK REFERENCE                      ║
+╚═══════════════════════════════════════════════════════════════╝
+
+SSH ACCESS (from Mac):
+  ssh jump     → Jump server (port 2222)
+  ssh ts1      → Target Server 1 (port 2223)
+  ssh ts2      → Target Server 2 (port 2224)
+  ssh ts3      → Target Server 3 (port 2225)
+  ssh ts4      → Target Server 4 (port 2226)
+
+MANAGEMENT:
+  ./podmania-ctl.sh status      → Show status
+  ./podmania-ctl.sh restart     → Restart everything
+  ./podmania-ctl.sh logs        → View logs
+  ./podmania-ctl.sh stop        → Stop containers
+  ./podmania-ctl.sh start       → Start containers
+
+VASTOOL COMMANDS:
+  vastool status                → Check AD status
+  vastool list users            → List all users
+  vastool list users-allowed    → List users allowed on this server
+  vastool user checkaccess USER → Check if user has access
+  vastool info acl              → Show access control list
+  vastool attrs USER ATTR...    → Get user attributes
+
+EXAMPLES:
+  ssh jump "vastool status"
+  ssh ts1 "vastool list users"
+  ssh jump "ssh ts2 'vastool user checkaccess jsmith'"
+
+AUTO-START: ✓ Enabled (runs at login)
+SSH KEYS:   ✓ Configured (passwordless)
